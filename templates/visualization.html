@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Data Visualization</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #166088;
+            --accent: #4fc3f7;
+            --light: #e8f4f8;
+            --dark: #032b43;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        /* Navbar */
+        nav {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            color: var(--accent);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 2rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            position: relative;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover::after {
+            width: 80%;
+            left: 10%;
+        }
+        
+        /* Auth Buttons */
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-left: 2rem;
+        }
+        
+        .auth-btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .login-btn {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .login-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .signup-btn {
+            background-color: var(--accent);
+            color: var(--dark);
+            border: 2px solid var(--accent);
+        }
+        
+        .signup-btn:hover {
+            background-color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* User Profile */
+        .user-profile {
+            display: none;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-profile span {
+            color: white;
+            font-weight: 500;
+        }
+        
+        #logout-btn {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Visualization Container */
+        .visualization-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .visualization-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .visualization-header h1 {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .visualization-header p {
+            color: #555;
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .powerbi-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .powerbi-iframe {
+            width: 100%;
+            min-height: 600px;
+            border: none;
+            border-radius: 8px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                width: 100%;
+                justify-content: space-around;
+                margin-top: 1rem;
+            }
+            
+            .nav-links li {
+                margin-left: 0;
+            }
+            
+            .visualization-header h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .visualization-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .visualization-header p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <div class="logo">
+            <i class="fas fa-heartbeat"></i>
+            <span>Healthcare Monitoring</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/#about">About</a></li>
+            <li><a href="/visualization">Visualization</a></li>
+            <li><a href="/#contact">Contact</a></li>
+        </ul>
+        <div class="auth-buttons" id="auth-buttons">
+            <a href="#" class="auth-btn login-btn" id="login-btn">Login</a>
+            <a href="#" class="auth-btn signup-btn" id="signup-btn">Sign Up</a>
+        </div>
+        <div class="user-profile" id="user-profile">
+            <span id="username-display"></span>
+            <button id="logout-btn">Logout</button>
+        </div>
+    </nav>
+    
+    <!-- Visualization Content -->
+    <div class="visualization-container">
+        <div class="visualization-header">
+            <h1>Healthcare Data Visualization</h1>
+            <p>Explore interactive visualizations of healthcare data to gain insights into patient trends, disease patterns, and treatment outcomes.</p>
+        </div>
+        
+        <div class="powerbi-container">
+            <iframe class="powerbi-iframe" title="health" src="https://app.powerbi.com/view?r=eyJrIjoiNjgzMzk3OTYtOTdmYS00MGYwLWI5MGMtNTQxYmM4Y2ZiYzc4IiwidCI6Ijk1NGVhZWY5LWI5NWEtNGJjZi1iMDA1LTMwM2VkMWVkNWQzYiJ9" frameborder="0" allowFullScreen="true"></iframe>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check login status from localStorage
+            function checkLoginStatus() {
+                const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+                const username = localStorage.getItem('username');
+
+                if (isLoggedIn) {
+                    document.getElementById('auth-buttons').style.display = 'none';
+                    document.getElementById('user-profile').style.display = 'flex';
+                    document.getElementById('username-display').textContent = username;
+                } else {
+                    document.getElementById('auth-buttons').style.display = 'flex';
+                    document.getElementById('user-profile').style.display = 'none';
+                }
+            }
+
+            // Logout functionality
+            document.getElementById('logout-btn').addEventListener('click', function () {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('username');
+                window.location.href = '/';
+            });
+
+            // Login/Signup buttons
+            document.getElementById('login-btn').addEventListener('click', function (e) {
+                e.preventDefault();
+                window.location.href = '/#login';
+            });
+
+            document.getElementById('signup-btn').addEventListener('click', function (e) {
+                e.preventDefault();
+                window.location.href = '/#signup';
+            });
+
+            // Initialize
+            checkLoginStatus();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Monitoring System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
+    <script src="https://files.bpcontent.cloud/2025/03/18/14/20250318141028-30WRMG85.js"></script>
+    <style>
+        :root {
+            --primary: #0066cc;
+            --secondary: #004d99;
+            --accent: #00b4d8;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --error: #ff4444;
+            --success: #00C851;
+            --text: #333333;
+            --bg-gradient: linear-gradient(135deg, #0066cc 0%, #004d99 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Navbar */
+        nav {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 1rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        nav.scrolled {
+            padding: 0.8rem 3rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            color: var(--accent);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 2rem;
+            position: relative;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            padding: 0.5rem 0;
+            position: relative;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--accent);
+            transition: all 0.3s ease;
+            border-radius: 3px;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        /* Auth Buttons */
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-left: 2rem;
+        }
+        
+        .auth-btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-btn {
+            background-color: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+        }
+        
+        .login-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .signup-btn {
+            background-color: var(--accent);
+            color: var(--dark);
+            border: 2px solid var(--accent);
+        }
+        
+        .signup-btn:hover {
+            background-color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 180, 216, 0.3);
+        }
+        
+        /* User Profile */
+        .user-profile {
+            display: none;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-profile span {
+            color: white;
+            font-weight: 500;
+        }
+        
+        #logout-btn {
+            background-color: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        /* Login Required Message */
+        .login-required {
+            text-align: center;
+            padding: 3rem;
+            background-color: white;
+            border-radius: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        
+        .login-required h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+        
+        .login-required p {
+            margin-bottom: 1.5rem;
+            color: #555;
+            font-size: 1.1rem;
+        }
+        
+        /* Projects Section Visibility Control */
+        .projects-section {
+            display: none;
+        }
+        
+        body.logged-in .projects-section {
+            display: block;
+        }
+        
+        body.logged-in .login-required {
+            display: none;
+        }
+        
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0 8%;
+            color: white;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7));
+            z-index: -1;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            transition: transform 10s ease;
+        }
+        
+        .hero:hover .hero-bg {
+            transform: scale(1.05);
+        }
+        
+        .hero-content {
+            max-width: 700px;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--accent);
+            color: var(--dark);
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 8px 25px rgba(0, 180, 216, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 180, 216, 0.4);
+            background-color: white;
+        }
+        
+        .btn i {
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn:hover i {
+            transform: translateX(5px);
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 6rem 8%;
+            background-color: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 2px;
+            animation: expand 1.5s ease-out;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 3rem;
+        }
+        
+        @keyframes expand {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-top: 4rem;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--bg-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 10px 20px rgba(0, 102, 204, 0.2);
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .feature-card p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        /* Why Choose Us Section */
+        .why-choose {
+            padding: 6rem 8%;
+            background: linear-gradient(to right, #f8f9fa, #e9f7fe);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .why-choose::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            z-index: 0;
+            opacity: 0.9;
+        }
+        
+        .why-content {
+            max-width: 55%;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .why-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+        }
+        
+        .why-content p {
+            margin-bottom: 2rem;
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .benefits-list {
+            list-style: none;
+        }
+        
+        .benefits-list li {
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-left: 3rem;
+        }
+        
+        .benefits-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+        
+        .benefits-list h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        /* Projects Section */
+        .projects {
+            padding: 6rem 8%;
+            background-color: white;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+        
+        .project-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .project-media {
+            height: 220px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .project-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .project-card:hover .project-img {
+            transform: scale(1.05);
+        }
+        
+        .project-gif {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .project-card:hover .project-gif {
+            opacity: 1;
+        }
+        
+        .project-content {
+            padding: 1.8rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .project-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .project-content h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--accent);
+            transition: width 0.3s ease;
+        }
+        
+        .project-card:hover .project-content h3::after {
+            width: 80px;
+        }
+        
+        .project-content p {
+            margin-bottom: 1.5rem;
+            color: #555;
+            flex-grow: 1;
+        }
+        
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            align-self: flex-start;
+        }
+        
+        .project-link i {
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+        }
+        
+        .project-link:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 77, 153, 0.3);
+        }
+        
+        .project-link:hover i {
+            transform: translateX(3px);
+        }
+        
+        /* Stats Section */
+        .stats {
+            padding: 5rem 8%;
+            background: var(--bg-gradient);
+            color: white;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .stat-item {
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+        
+        .stat-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 5rem 8% 2rem;
+            position: relative;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--accent);
+        }
+        
+        .footer-section p {
+            margin-bottom: 1rem;
+            opacity: 0.8;
+            line-height: 1.8;
+        }
+        
+        .contact-info {
+            margin-bottom: 1.5rem;
+        }
+        
+        .contact-info div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .contact-info i {
+            margin-right: 12px;
+            color: var(--accent);
+            font-size: 1.1rem;
+            min-width: 20px;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background-color: var(--accent);
+            color: var(--dark);
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 3rem;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .footer-bottom p {
+            margin-bottom: 0.5rem;
+            opacity: 0.7;
+        }
+        
+        .made-by {
+            display: inline-flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .made-by i {
+            color: #ff4d4d;
+            margin: 0 8px;
+            animation: heartbeat 1.5s infinite;
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Auth Modal */
+        .auth-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .auth-modal.active {
+            display: flex;
+        }
+        
+        .auth-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            animation: modalFadeIn 0.3s ease-out;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .auth-modal.active .auth-container {
+            transform: translateY(0);
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .auth-header {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 1.8rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .auth-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            transform: rotate(90deg);
+        }
+        
+        .auth-body {
+            padding: 2.5rem;
+        }
+        
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.2);
+            outline: none;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 42px;
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .auth-footer p {
+            margin-bottom: 1rem;
+            color: #666;
+        }
+        
+        .switch-auth {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .btn-submit {
+            background: var(--bg-gradient);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+            box-shadow: 0 5px 15px rgba(0, 102, 204, 0.3);
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 102, 204, 0.4);
+        }
+        
+        .error-message {
+            color: var(--error);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+            display: none;
+        }
+        
+        .success-message {
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+            display: none;
+        }
+        
+        .forgot-password {
+            display: block;
+            text-align: right;
+            margin-top: 0.5rem;
+            color: var(--primary);
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        
+        /* Reset Password Modal */
+        .reset-password-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .reset-password-modal.active {
+            display: flex;
+        }
+        
+        .reset-password-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Chatbot Styles */
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #004d99;
+            --bot-color: #f1f1f1;
+            --user-color: #e3f2fd;
+            --high-risk: #ff5252;
+            --medium-risk: #ffc107;
+            --low-risk: #4CAF50;
+            --black-risk: #424242;
+        }
+
+        .chatbot-icon {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(0, 102, 204, 0.4);
+        }
+
+        .chatbot-icon img {
+            width: 35px;
+            height: 35px;
+            filter: brightness(0) invert(1);
+        }
+
+        .chatbot-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 380px;
+            max-height: 70vh;
+            z-index: 1001;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            transform: scale(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease;
+        }
+
+        .chatbot-container.open {
+            transform: scale(1);
+        }
+
+        .chatbot-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .chatbot-header .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .chatbot-header .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .chatbot-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .bot-message {
+            background-color: var(--bot-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .user-message {
+            background-color: var(--user-color);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .risk-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            margin-left: 8px;
+        }
+
+        .high-risk-tag {
+            background-color: var(--high-risk);
+        }
+
+        .medium-risk-tag {
+            background-color: var(--medium-risk);
+            color: #333;
+        }
+
+        .low-risk-tag {
+            background-color: var(--low-risk);
+        }
+
+        .black-risk-tag {
+            background-color: var(--black-risk);
+        }
+
+        .chatbot-input {
+            display: flex;
+            padding: 15px;
+            background-color: white;
+            border-top: 1px solid #ddd;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        .chatbot-input button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .chatbot-input button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 15px;
+            background-color: #f0f0f0;
+        }
+
+        .suggestion-chip {
+            background-color: var(--user-color);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-chip:hover {
+            background-color: #bbdefb;
+            transform: translateY(-2px);
+        }
+
+        .typing-indicator {
+            display: flex;
+            padding: 12px 18px;
+            background-color: var(--bot-color);
+            border-radius: 18px;
+            align-self: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #666;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .disease-info {
+            margin-top: 8px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .risk-explanation {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            background-color: #e8f5e9;
+            font-size: 0.85rem;
+        }
+
+        .risk-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+        }
+
+        .risk-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .risk-meter {
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(to right, #4CAF50, #FFC107, #FF5252);
+            border-radius: 10px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .risk-percentage {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .risk-description {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .hero {
+                padding: 0 5%;
+            }
+            
+            .features, .why-choose, .projects, .stats {
+                padding: 5rem 5%;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .why-choose::before {
+                width: 50%;
+            }
+            
+            .why-content {
+                max-width: 45%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 2rem;
+                flex-wrap: wrap;
+            }
+            
+            .nav-links {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                margin-top: 1rem;
+            }
+            
+            .auth-buttons {
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 1rem;
+            }
+            
+            .hero {
+                height: auto;
+                padding: 8rem 5%;
+                text-align: center;
+                align-items: center;
+            }
+            
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .hero p {
+                font-size: 1.2rem;
+            }
+            
+            .why-choose::before {
+                display: none;
+            }
+            
+            .why-content {
+                max-width: 100%;
+                text-align: center;
+            }
+            
+            .benefits-list li {
+                padding-left: 0;
+                text-align: center;
+            }
+            
+            .benefits-list li::before {
+                display: none;
+            }
+            
+            .section-title {
+                font-size: 2.2rem;
+            }
+            
+            .auth-container {
+                width: 90%;
+            }
+            
+            .chatbot-container {
+                width: 90%;
+                max-width: 380px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            nav {
+                padding: 1rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .nav-links li {
+                margin-left: 1rem;
+            }
+            
+            .auth-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 0.8rem 1.8rem;
+                font-size: 1rem;
+            }
+            
+            .feature-card {
+                padding: 1.5rem;
+            }
+            
+            .feature-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .auth-body {
+                padding: 1.5rem;
+            }
+            
+            .form-control {
+                padding: 0.8rem 1rem;
+            }
+            
+            .chatbot-icon {
+                width: 60px;
+                height: 60px;
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .chatbot-icon img {
+                width: 30px;
+                height: 30px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .nav-links {
+                flex-wrap: wrap;
+            }
+            
+            .nav-links li {
+                margin: 0.5rem;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Night Mode Styles */
+body.night-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+.night-mode .features,
+.night-mode .projects,
+.night-mode .why-choose,
+.night-mode .login-required {
+    background-color: #1e1e1e;
+}
+
+.night-mode .feature-card,
+.night-mode .project-card,
+.night-mode .login-required {
+    background-color: #2d2d2d;
+    border-color: #444;
+}
+
+.night-mode .feature-card h3,
+.night-mode .project-card h3,
+.night-mode .section-title,
+.night-mode .why-content h2,
+.night-mode .why-content h3,
+.night-mode .login-required h3 {
+    color: #f0f0f0;
+}
+
+.night-mode .feature-card p,
+.night-mode .project-card p,
+.night-mode .section-subtitle,
+.night-mode .why-content p,
+.night-mode .login-required p {
+    color: #b0b0b0;
+}
+
+.night-mode .auth-container {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+.night-mode .form-control {
+    background-color: #3d3d3d;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+.night-mode .chatbot-container {
+    background-color: #2d2d2d;
+}
+
+.night-mode .chatbot-messages {
+    background-color: #252525;
+}
+
+.night-mode .bot-message {
+    background-color: #3d3d3d;
+    color: #e0e0e0;
+}
+
+.night-mode .user-message {
+    background-color: #0066cc;
+    color: white;
+}
+
+.night-mode-toggle {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 60px;
+    height: 60px;
+    background-color: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 999;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.night-mode-toggle:hover {
+    transform: scale(1.1);
+}
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav id="navbar">
+        <div class="logo">
+            <i class="fas fa-heartbeat"></i>
+            <span>HealthGuard</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="visualization.html">Visualization</a></li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="#" class="auth-btn login-btn" id="login-btn">Login</a>
+            <a href="#" class="auth-btn signup-btn" id="signup-btn">Sign Up</a>
+        </div>
+        <div class="user-profile">
+            <span id="username-display"></span>
+            <button id="logout-btn">Logout</button>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Healthcare Monitoring" class="hero-bg">
+        <div class="hero-content">
+            <h1>Advanced Healthcare Monitoring System</h1>
+            <p>Revolutionizing patient care through real-time monitoring, predictive analytics, and AI-powered diagnostics for better health outcomes.</p>
+            <a href="#features" class="btn">Explore Features <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2 class="section-title">Our Key Features</h2>
+        <p class="section-subtitle">Discover how our advanced healthcare monitoring system can transform patient care and medical outcomes</p>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <h3>Real-time Monitoring</h3>
+                <p>Continuous tracking of vital signs and health metrics with instant alerts for critical changes.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3>AI Diagnostics</h3>
+                <p>Advanced machine learning algorithms for accurate disease prediction and early detection.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Predictive Analytics</h3>
+                <p>Identify potential health risks before they become critical with our predictive models.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Mobile Integration</h3>
+                <p>Access your health data anytime, anywhere through our secure mobile platform.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Data Security</h3>
+                <p>Military-grade encryption to ensure your health data remains private and secure.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3>Doctor Connect</h3>
+                <p>Seamless communication with healthcare providers for timely consultations.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Why Choose Us Section -->
+    <section class="why-choose" id="why-choose">
+        <div class="why-content">
+            <h2>Why Choose Our Healthcare System?</h2>
+            <p>Our platform combines cutting-edge technology with medical expertise to deliver unparalleled healthcare monitoring solutions.</p>
+            
+            <ul class="benefits-list">
+                <li>
+                    <h3>24/7 Health Monitoring</h3>
+                    <p>Round-the-clock tracking of your vital signs with instant notifications for any abnormalities.</p>
+                </li>
+                <li>
+                    <h3>Early Risk Detection</h3>
+                    <p>Our algorithms can predict potential health issues before symptoms appear, allowing for preventive care.</p>
+                </li>
+                <li>
+                    <h3>Personalized Insights</h3>
+                    <p>Tailored health recommendations based on your unique medical profile and history.</p>
+                </li>
+                <li>
+                    <h3>Integrated Care Ecosystem</h3>
+                    <p>Seamless connection between patients, doctors, and healthcare providers for coordinated care.</p>
+                </li>
+            </ul>
+            
+            <a href="#projects" class="btn">View Our Projects <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+    
+    <!-- Stats Section -->
+    <section class="stats">
+        <h2 class="section-title" style="color: white;">Our Impact in Numbers</h2>
+
+        <p class="section-subtitle" style="color: white;">Transforming healthcare through technology and innovation</p>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number" id="patients-count">10,000+</div>
+                <div class="stat-label">Patients Monitored</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="accuracy-rate">98%</div>
+                <div class="stat-label">Diagnostic Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="response-time">24/7</div>
+                <div class="stat-label">Emergency Response</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="hospitals">150+</div>
+                <div class="stat-label">Partner Hospitals</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Projects Section -->
+    <section class="projects" id="projects">
+        <div class="login-required">
+            <h3>Login Required</h3>
+            <p>Please log in to access our healthcare projects and monitoring tools.</p>
+            <a href="#" class="btn" id="login-prompt-btn">Login Now <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="projects-section">
+            <h2 class="section-title">Our Healthcare Models</h2>
+            <p class="section-subtitle">Explore our innovative healthcare solutions powered by AI and advanced analytics</p>
+            
+            <div class="projects-grid">
+                <!-- Project 1 -->
+                <div class="project-card">
+                    <div class="project-media">
+                        <img src="https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Health Risk Prediction" class="project-img">
+                        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2JvZzF0b2J3b3R1Y2N4eHh2eGp6eXJ1d2V4dGJ3dWJ4dW1xYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIPEqDGUULpEU0aQ/giphy.gif" alt="Health Risk Prediction Demo" class="project-gif">
+                    </div>
+                    <div class="project-content">
+                        <h3>Health Risk Prediction</h3>
+                        <p>An advanced system that predicts potential health risks based on patient data, helping in early intervention and preventive care.</p>
+                        <a href="https://health-risk3-2.onrender.com" class="project-link">Try out<i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Project 2 -->
+                <div class="project-card">
+                    <div class="project-media">
+                        <img src="https://images.unsplash.com/photo-1629909613654-28e377c0ec2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2080&q=80" alt="Disease Classification" class="project-img">
+                        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWJvZzZ0d2F0b2V5b2J5d2Y1b3V4dHl4d3l0a2J4dWJ4dW1xYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LpiVeIRgrq6Z3bQMz7/giphy.gif" alt="Disease Classification Demo" class="project-gif">
+                    </div>
+                    <div class="project-content">
+                        <h3>Disease Classification</h3>
+                        <p>A sophisticated classification system that helps identify diseases based on symptoms and medical history for accurate diagnosis.</p>
+                        <a href="https://cdisease-classification-3.onrender.com" class="project-link">Try out<i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Project 3 -->
+                <div class="project-card">
+                    <div class="project-media">
+                        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Triage System" class="project-img">
+                        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeW5yY2F5d2J3dWJ4dW1xY3l5d3l0a2J4dWJ4dW1xYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKsQ8UQ1nWZ5zLi/giphy.gif" alt="Triage System Demo" class="project-gif">
+                    </div>
+                    <div class="project-content">
+                        <h3>Triage System</h3>
+                        <p>An intelligent patient priority system that helps medical staff efficiently allocate resources based on urgency of cases.</p>
+                        <a href="https://patient-priority-1.onrender.com" class="project-link">Try out <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About HealthGuard</h3>
+                <p>HealthGuard is a comprehensive healthcare monitoring platform designed to improve patient outcomes through advanced technology, predictive analytics, and real-time monitoring.</p>
+                <div class="social-links">
+                    <a href="https://www.linkedin.com/in/jeebanjyoti-biswal-3447302b6/" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://www.instagram.com/_.tech.__jewn/?next=%2F" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://github.com/Jeebanjyotibiswal" title="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul style="list-style: none;">
+                    <li style="margin-bottom: 0.8rem;"><a href="#home" style="color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">Home</a></li>
+                    <li style="margin-bottom: 0.8rem;"><a href="#features" style="color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">Features</a></li>
+                    <li style="margin-bottom: 0.8rem;"><a href="#projects" style="color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">Projects</a></li>
+                    <li style="margin-bottom: 0.8rem;"><a href="#contact" style="color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">Contact</a></li>
+                    <li style="margin-bottom: 0.8rem;"><a href="visualization.html" style="color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">Visualization</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <div class="contact-info">
+                    <div>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Balasore, Odisha, India</span>
+                    </div>
+                    <div>
+                        <i class="fas fa-phone"></i>
+                        <span>+91 6370431049</span>
+                    </div>
+                    <div>
+                        <i class="fas fa-envelope"></i>
+                        <span>jeebanjyotibiswal766@gmail.com</span>
+                    </div>
+                    <div>
+                        <i class="fas fa-clock"></i>
+                        <span>24/7 Support Available</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 HealthGuard Healthcare Monitoring System. All Rights Reserved.</p>
+            <div class="made-by">
+                <span>Made with</span> <i class="fas fa-heart"></i> <span>by Jeeban</span>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Chatbot Icon -->
+    <div class="chatbot-icon" id="chatbot-icon">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEyLDJDNi40OCwyLDIsNi40OCwyLDEyczQuNDgsMTAsMTAsMTBoNXYtMWgtNWMtNC45NiwwLTktNC4wNC05LTlzNC4wNC05LDktOXM5LDQuMDQsOSw5djFjMC01LjUyLTQuNDgtMTAtMTAtMTB6Ii8+PHBhdGggZD0iTTE3LDE0aC0ydi0yaDJWMTR6IE0xMywxNGgtMnYtN2gyVjE0eiIvPjwvc3ZnPg==" alt="Chatbot">
+    </div>
+
+    <!-- Chatbot Container -->
+    <div class="chatbot-container" id="chatbot">
+        <div class="chatbot-header" id="chatbot-header">
+            Health Assistant
+            <button class="close-btn" id="close-btn">×</button>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="message bot-message">
+                Hello! I'm your health monitoring assistant. I can provide information about various diseases, their risk levels, and health risk percentages. How can I help you today?
+            </div>
+            <div class="message bot-message">
+                <div class="risk-explanation">
+                    <strong>Triage System:</strong>
+                    <div class="risk-item"><span class="risk-color" style="background-color: var(--high-risk);"></span> Red: Immediate - Life-threatening (80-100%)</div>
+                    <div class="risk-item"><span class="risk-color" style="background-color: var(--medium-risk);"></span> Yellow: Urgent - Serious condition (30-79%)</div>
+                    <div class="risk-item"><span class="risk-color" style="background-color: var(--low-risk);"></span> Green: Delayed - Minor/non-life-threatening (1-29%)</div>
+                    <div class="risk-item"><span class="risk-color" style="background-color: var(--black-risk);"></span> Black: Deceased - Mortally wounded (100%)</div>
+                </div>
+            </div>
+        </div>
+        <div class="suggestions" id="suggestions">
+            <button class="suggestion-chip">Common Cold</button>
+            <button class="suggestion-chip">Diabetes</button>
+            <button class="suggestion-chip">Heart attack</button>
+            <button class="suggestion-chip">Hypertension</button>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <div class="auth-modal" id="login-modal">
+        <div class="auth-container">
+            <div class="auth-header">
+                <button class="close-modal" id="close-login">&times;</button>
+                <h2>Welcome Back</h2>
+                <p>Login to access your healthcare dashboard</p>
+            </div>
+            <div class="auth-body">
+                <form class="auth-form" id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email or Mobile Number</label>
+                        <input type="text" id="login-email" class="form-control" placeholder="Enter your email or mobile number" required>
+                        <div class="error-message" id="login-email-error">Please enter a valid email or mobile number</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div style="position: relative;">
+                            <input type="password" id="login-password" class="form-control" placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" id="login-toggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="error-message" id="login-password-error">Password must be at least 6 characters</div>
+                        <a href="#" class="forgot-password" id="forgot-password">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn-submit">Login</button>
+                </form>
+                <div class="auth-footer">
+                    <p>Don't have an account? <button class="switch-auth" id="switch-to-signup">Sign Up</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Signup Modal -->
+    <div class="auth-modal" id="signup-modal">
+        <div class="auth-container">
+            <div class="auth-header">
+                <button class="close-modal" id="close-signup">&times;</button>
+                <h2>Create Account</h2>
+                <p>Join our healthcare monitoring system</p>
+            </div>
+            <div class="auth-body">
+                <form class="auth-form" id="signup-form">
+                    <div class="form-group">
+                        <label for="signup-name">Full Name</label>
+                        <input type="text" id="signup-name" class="form-control" placeholder="Enter your full name" required>
+                        <div class="error-message" id="signup-name-error">Please enter your full name</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email">Email Address</label>
+                        <input type="email" id="signup-email" class="form-control" placeholder="Enter your email address" required>
+                        <div class="error-message" id="signup-email-error">Please enter a valid email address</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-phone">Mobile Number</label>
+                        <input type="tel" id="signup-phone" class="form-control" placeholder="Enter your mobile number" required>
+                        <div class="error-message" id="signup-phone-error">Please enter a valid mobile number</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <div style="position: relative;">
+                            <input type="password" id="signup-password" class="form-control" placeholder="Create a password" required>
+                            <button type="button" class="password-toggle" id="signup-toggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="error-message" id="signup-password-error">Password must be at least 6 characters</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-confirm">Confirm Password</label>
+                        <input type="password" id="signup-confirm" class="form-control" placeholder="Confirm your password" required>
+                        <div class="error-message" id="signup-confirm-error">Passwords do not match</div>
+                    </div>
+                    <button type="submit" class="btn-submit">Create Account</button>
+                </form>
+                <div class="auth-footer">
+                    <p>Already have an account? <button class="switch-auth" id="switch-to-login">Login</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reset Password Modal -->
+    <div class="reset-password-modal" id="reset-password-modal">
+        <div class="auth-container">
+            <div class="auth-header">
+                <button class="close-modal" id="close-reset">&times;</button>
+                <h2>Reset Password</h2>
+                <p>Enter your email to receive a reset link</p>
+            </div>
+            <div class="auth-body">
+                <form class="auth-form" id="reset-form">
+                    <div class="form-group">
+                        <label for="reset-email">Email Address</label>
+                        <input type="email" id="reset-email" class="form-control" placeholder="Enter your email address" required>
+                        <div class="error-message" id="reset-email-error">Please enter a valid email address</div>
+                        <div class="success-message" id="reset-success">Password reset link has been sent to your email</div>
+                    </div>
+                    <button type="submit" class="btn-submit">Send Reset Link</button>
+                </form>
+                <div class="auth-footer">
+                    <p>Remember your password? <button class="switch-auth" id="reset-to-login">Login</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="night-mode-toggle" id="night-mode-toggle">
+    <i class="fas fa-moon"></i>
+</div>
+    </body>
+  <script>
+    // Night Mode Toggle
+    const nightModeToggle = document.getElementById('night-mode-toggle');
+    nightModeToggle.addEventListener('click', function() {
+        document.body.classList.toggle('night-mode');
+        const icon = this.querySelector('i');
+        if (document.body.classList.contains('night-mode')) {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+            localStorage.setItem('nightMode', 'enabled');
+        } else {
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+            localStorage.setItem('nightMode', 'disabled');
+        }
+    });
+
+    // Check for saved night mode preference
+    if (localStorage.getItem('nightMode') === 'enabled') {
+        document.body.classList.add('night-mode');
+        const icon = nightModeToggle.querySelector('i');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+    }
+
+    // Login Status Check
+    function checkLoginStatus() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        const username = localStorage.getItem('username');
+
+        if (isLoggedIn) {
+            document.body.classList.add('logged-in');
+            document.querySelector('.auth-buttons').style.display = 'none';
+            document.querySelector('.user-profile').style.display = 'flex';
+            document.getElementById('username-display').textContent = username;
+        } else {
+            document.body.classList.remove('logged-in');
+            document.querySelector('.auth-buttons').style.display = 'flex';
+            document.querySelector('.user-profile').style.display = 'none';
+        }
+    }
+
+    // Initialize login status check
+    checkLoginStatus();
+
+    // Logout Function
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            fetch('/logout')
+                .then(() => {
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('username');
+                    checkLoginStatus();
+                    window.location.href = '/';
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                });
+        });
+    }
+
+    // Modal Handling
+    const loginBtn = document.getElementById('login-btn');
+    const loginModal = document.getElementById('login-modal');
+    const signupBtn = document.getElementById('signup-btn');
+    const signupModal = document.getElementById('signup-modal');
+    const closeLogin = document.getElementById('close-login');
+    const closeSignup = document.getElementById('close-signup');
+    const switchToSignup = document.getElementById('switch-to-signup');
+    const switchToLogin = document.getElementById('switch-to-login');
+    const loginPromptBtn = document.getElementById('login-prompt-btn');
+
+    // Open Login Modal
+    if (loginBtn) {
+        loginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginModal.classList.add('active');
+        });
+    }
+
+    // Open Signup Modal
+    if (signupBtn) {
+        signupBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            signupModal.classList.add('active');
+        });
+    }
+
+    // Close Modals
+    if (closeLogin) {
+        closeLogin.addEventListener('click', function() {
+            loginModal.classList.remove('active');
+        });
+    }
+
+    if (closeSignup) {
+        closeSignup.addEventListener('click', function() {
+            signupModal.classList.remove('active');
+        });
+    }
+
+    // Switch Between Login and Signup
+    if (switchToSignup) {
+        switchToSignup.addEventListener('click', function() {
+            loginModal.classList.remove('active');
+            signupModal.classList.add('active');
+        });
+    }
+
+    if (switchToLogin) {
+        switchToLogin.addEventListener('click', function() {
+            signupModal.classList.remove('active');
+            loginModal.classList.add('active');
+        });
+    }
+
+    // Login Prompt Button
+    if (loginPromptBtn) {
+        loginPromptBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginModal.classList.add('active');
+        });
+    }
+
+    // Close Modals When Clicking Outside
+    window.addEventListener('click', function(e) {
+        if (e.target === loginModal) loginModal.classList.remove('active');
+        if (e.target === signupModal) signupModal.classList.remove('active');
+    });
+
+    // Password Toggle Functionality
+    function setupPasswordToggle(inputId, toggleId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleButton = document.getElementById(toggleId);
+
+        if (passwordInput && toggleButton) {
+            toggleButton.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                toggleButton.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+            });
+        }
+    }
+
+    setupPasswordToggle('login-password', 'login-toggle');
+    setupPasswordToggle('signup-password', 'signup-toggle');
+
+    // Form Validation Helpers
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    function validatePhone(phone) {
+        const re = /^[0-9]{10,15}$/;
+        return re.test(phone);
+    }
+
+    // Login Form Submission
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email_or_phone=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('username', data.username);
+                    
+                    if (data.is_admin) {
+                        // Redirect admin to admin dashboard
+                        window.location.href = '/admin';
+                    } else {
+                        alert('Login successful!');
+                        loginModal.classList.remove('active');
+                        checkLoginStatus();
+                    }
+                } else {
+                    alert('Login failed: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error during login: ' + error.message);
+            }
+        });
+    }
+
+    // Signup Form Submission
+    const signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const phone = document.getElementById('signup-phone').value.trim();
+            const password = document.getElementById('signup-password').value.trim();
+            const confirm = document.getElementById('signup-confirm').value.trim();
+
+            // Client-side validation
+            if (!name || !email || !phone || !password || !confirm) {
+                alert('All fields are required.');
+                return;
+            }
+
+            if (!validateEmail(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            if (!validatePhone(phone)) {
+                alert('Please enter a valid phone number (10-15 digits).');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters.');
+                return;
+            }
+
+            if (password !== confirm) {
+                alert('Passwords do not match.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&password=${encodeURIComponent(password)}`
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    alert('Account created successfully! Please log in.');
+                    signupModal.classList.remove('active');
+                    loginModal.classList.add('active');
+                } else {
+                    alert('Signup failed: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error during signup: ' + error.message);
+            }
+        });
+    }
+
+    // Forgot Password Handling
+    const forgotPasswordBtn = document.getElementById('forgot-password');
+    const resetPasswordModal = document.getElementById('reset-password-modal');
+    const closeReset = document.getElementById('close-reset');
+    const resetToLogin = document.getElementById('reset-to-login');
+    const resetForm = document.getElementById('reset-form');
+
+    if (forgotPasswordBtn) {
+        forgotPasswordBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginModal.classList.remove('active');
+            resetPasswordModal.classList.add('active');
+        });
+    }
+
+    if (closeReset) {
+        closeReset.addEventListener('click', function() {
+            resetPasswordModal.classList.remove('active');
+        });
+    }
+
+    if (resetToLogin) {
+        resetToLogin.addEventListener('click', function() {
+            resetPasswordModal.classList.remove('active');
+            loginModal.classList.add('active');
+        });
+    }
+
+    if (resetForm) {
+        resetForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('reset-email').value.trim();
+
+            if (!email || !validateEmail(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/send-reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(email)}`
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    alert('Password reset link has been sent to your email.');
+                    resetPasswordModal.classList.remove('active');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error sending reset link: ' + error.message);
+            }
+        });
+    }
+
+    // Chatbot functionality
+    const chatbotIcon = document.getElementById('chatbot-icon');
+    const chatbot = document.getElementById('chatbot');
+    const chatbotHeader = document.getElementById('chatbot-header');
+    const chatbotMessages = document.getElementById('chatbot-messages');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const closeBtn = document.getElementById('close-btn');
+    const suggestions = document.getElementById('suggestions');
+
+    // Disease database with risk levels and percentages
+    const diseases = {
+        "fungal infection": { risk: "low", percentage: 15, info: "Fungal infections are common and usually not serious, but can be uncomfortable. They often affect the skin, nails, or mucous membranes." },
+        "hepatitis c": { risk: "medium", percentage: 65, info: "Hepatitis C is a viral infection that causes liver inflammation, sometimes leading to serious liver damage. It spreads through contaminated blood." },
+        "hepatitis e": { risk: "medium", percentage: 55, info: "Hepatitis E is a liver infection caused by the hepatitis E virus. It's usually acute but can be particularly dangerous for pregnant women." },
+        "alcoholic hepatitis": { risk: "high", percentage: 85, info: "Alcoholic hepatitis is liver inflammation caused by drinking alcohol. It can range from mild to life-threatening." },
+        "tuberculosis": { risk: "high", percentage: 80, info: "Tuberculosis (TB) is a potentially serious infectious disease that mainly affects the lungs. It spreads through tiny droplets released into the air." },
+        "common cold": { risk: "low", percentage: 5, info: "The common cold is a viral infection of your nose and throat (upper respiratory tract). It's usually harmless, although it might not feel that way." },
+        "pneumonia": { risk: "high", percentage: 75, info: "Pneumonia is an infection that inflames the air sacs in one or both lungs, which may fill with fluid or pus. It can range from mild to life-threatening." },
+        "dimorphic hemmorhoids(piles)": { risk: "low", percentage: 10, info: "Hemorrhoids (piles) are swollen veins in your anus and lower rectum, similar to varicose veins. They can cause discomfort but are rarely dangerous." },
+        "heart attack": { risk: "high", percentage: 95, info: "A heart attack occurs when the flow of blood to the heart is blocked. This is a medical emergency that requires immediate attention." },
+        "varicose veins": { risk: "low", percentage: 15, info: "Varicose veins are twisted, enlarged veins. Any vein close to the skin's surface can become varicosed, but most commonly affected are legs and feet." },
+        "hypothyroidism": { risk: "medium", percentage: 40, info: "Hypothyroidism is a condition where the thyroid gland doesn't produce enough thyroid hormone. It can cause fatigue, weight gain and other symptoms." },
+        "hyperthyroidism": { risk: "medium", percentage: 50, info: "Hyperthyroidism is the overproduction of thyroid hormone by the thyroid gland. It can accelerate your body's metabolism significantly." },
+        "hypoglycemia": { risk: "high", percentage: 70, info: "Hypoglycemia is a condition where blood sugar (glucose) levels are lower than normal. It's most common in people with diabetes." },
+        "osteoarthristis": { risk: "low", percentage: 20, info: "Osteoarthritis is the most common form of arthritis, affecting millions worldwide. It occurs when the protective cartilage wears down over time." },
+        "arthritis": { risk: "medium", percentage: 45, info: "Arthritis is inflammation of one or more joints, causing pain and stiffness. There are many types, with different causes and treatments." },
+        "(vertigo) paroymsal positional vertigo": { risk: "low", percentage: 10, info: "Benign paroxysmal positional vertigo (BPPV) is one of the most common causes of vertigo. It causes brief episodes of mild to intense dizziness." },
+        "acne": { risk: "low", percentage: 5, info: "Acne is a skin condition that occurs when hair follicles become plugged with oil and dead skin cells. It most commonly affects adolescents." },
+        "urinary tract infection": { risk: "medium", percentage: 35, info: "A UTI is an infection in any part of your urinary system — kidneys, ureters, bladder and urethra. Most infections involve the lower urinary tract." },
+        "psoriasis": { risk: "low", percentage: 15, info: "Psoriasis is a skin disease that causes red, itchy scaly patches, most commonly on the knees, elbows, trunk and scalp. It's a chronic condition." },
+        "hepatitis d": { risk: "high", percentage: 90, info: "Hepatitis D is a serious liver disease caused by the hepatitis D virus. It only occurs in people who are also infected with hepatitis B." },
+        "hepatitis b": { risk: "high", percentage: 85, info: "Hepatitis B is a serious liver infection caused by the hepatitis B virus. For some people, it becomes chronic and leads to liver failure." },
+        "allergy": { risk: "medium", percentage: 30, info: "Allergies occur when your immune system reacts to a foreign substance that doesn't cause a reaction in most people." },
+        "hepatitis a": { risk: "medium", percentage: 40, info: "Hepatitis A is a highly contagious liver infection caused by the hepatitis A virus. It's usually mild but can be severe in some cases." },
+        "gerd": { risk: "low", percentage: 15, info: "GERD (gastroesophageal reflux disease) is a chronic digestive disease where stomach acid flows back into the esophagus, irritating its lining." },
+        "chronic cholestasis": { risk: "high", percentage: 75, info: "Chronic cholestasis is a reduction or stoppage of bile flow that persists for months to years. It can lead to serious liver problems." },
+        "drug reaction": { risk: "high", percentage: 70, info: "Drug reactions range from mild side effects to severe allergic reactions. Severe reactions require immediate medical attention." },
+        "peptic ulcer diseae": { risk: "medium", percentage: 50, info: "Peptic ulcers are open sores that develop on the inside lining of your stomach and the upper portion of your small intestine." },
+        "aids": { risk: "high", percentage: 95, info: "AIDS is a chronic, potentially life-threatening condition caused by HIV. It damages your immune system, interfering with your body's ability to fight infection." },
+        "diabetes": { risk: "high", percentage: 80, info: "Diabetes is a chronic disease that occurs when the pancreas doesn't produce enough insulin or the body can't effectively use the insulin it produces." },
+        "gastroenteritis": { risk: "medium", percentage: 35, info: "Gastroenteritis is an inflammation of the stomach and intestines, typically resulting from bacterial toxins or viral infection." },
+        "bronchial asthma": { risk: "high", percentage: 65, info: "Asthma is a condition in which your airways narrow and swell and may produce extra mucus. This can make breathing difficult." },
+        "hypertension": { risk: "high", percentage: 70, info: "Hypertension (high blood pressure) is a common condition where the long-term force of blood against artery walls is high enough to cause health problems." },
+        "migraine": { risk: "low", percentage: 20, info: "A migraine is a headache that can cause severe throbbing pain or a pulsing sensation, usually on one side of the head." },
+        "cervical spondylosis": { risk: "low", percentage: 25, info: "Cervical spondylosis is a general term for age-related wear and tear affecting the spinal disks in your neck." },
+        "paralysis (brain hemorrhage)": { risk: "high", percentage: 95, info: "A brain hemorrhage is a type of stroke caused by an artery in the brain bursting and causing localized bleeding in surrounding tissues." },
+        "jaundice": { risk: "medium", percentage: 60, info: "Jaundice is a yellow discoloration of the skin and eyes caused by high levels of bilirubin in the blood. It indicates an underlying condition." },
+        "malaria": { risk: "high", percentage: 85, info: "Malaria is a life-threatening disease caused by parasites transmitted to people through the bites of infected female Anopheles mosquitoes." },
+        "chicken pox": { risk: "medium", percentage: 45, info: "Chickenpox is a highly contagious disease caused by the varicella-zoster virus. It causes an itchy, blister-like rash." },
+        "dengue": { risk: "high", percentage: 80, info: "Dengue is a mosquito-borne viral infection causing a severe flu-like illness and sometimes causing a potentially lethal complication." },
+        "typhoid": { risk: "high", percentage: 75, info: "Typhoid fever is a life-threatening illness caused by Salmonella Typhi bacteria. It's usually spread through contaminated food or water." },
+        "impetigo": { risk: "low", percentage: 10, info: "Impetigo is a common and highly contagious skin infection that mainly affects infants and children. It causes red sores that can break open." }
+    };
+
+    // Risk level explanations
+    const riskExplanations = {
+        "high": "Red: Immediate (80-100%) - Needs immediate attention for critical life-threatening injury or illness; transport first for medical help.",
+        "medium": "Yellow: Urgent (30-79%) - Serious injuries needing immediate attention. May be transported first as they have better chance of recovery.",
+        "low": "Green: Delayed (1-29%) - Less serious or minor injuries, non-life-threatening, delayed transport; can wait for others.",
+        "black": "Black: Deceased (100%) - Deceased or mortally wounded; lower priority than those who can be helped."
+    };
+
+    // Percentage risk descriptions
+    const percentageDescriptions = {
+        "1-10": "Very low risk - Minor conditions that typically resolve on their own with minimal intervention.",
+        "11-29": "Low risk - Conditions that may require basic treatment but are not life-threatening.",
+        "30-49": "Moderate risk - Conditions that require medical attention but are typically manageable with treatment.",
+        "50-69": "High risk - Serious conditions that require prompt medical intervention to prevent complications.",
+        "70-89": "Very high risk - Potentially life-threatening conditions requiring immediate medical attention.",
+        "90-100": "Critical risk - Life-threatening conditions requiring emergency medical care."
+    };
+
+    // Toggle chatbot visibility
+    if (chatbotIcon) {
+        chatbotIcon.addEventListener('click', function() {
+            chatbot.classList.add('open');
+            chatbotIcon.style.display = 'none';
+        });
+    }
+
+    // Close chatbot
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            chatbot.classList.remove('open');
+            setTimeout(() => {
+                chatbotIcon.style.display = 'flex';
+            }, 300);
+        });
+    }
+
+    // Open chat when header clicked
+    if (chatbotHeader) {
+        chatbotHeader.addEventListener('click', function() {
+            if (!chatbot.classList.contains('open')) {
+                chatbot.classList.add('open');
+                chatbotIcon.style.display = 'none';
+            }
+        });
+    }
+
+    // Send message when button clicked
+    if (sendBtn) {
+        sendBtn.addEventListener('click', sendMessage);
+    }
+
+    // Send message when Enter key pressed
+    if (userInput) {
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    }
+
+    // Handle suggestion clicks
+    if (suggestions) {
+        suggestions.addEventListener('click', function(e) {
+            if (e.target.classList.contains('suggestion-chip')) {
+                userInput.value = e.target.textContent;
+                sendMessage();
+            }
+        });
+    }
+
+    function sendMessage() {
+        const message = userInput.value.trim();
+        if (message === '') return;
+
+        // Add user message to chat
+        addMessage(message, 'user');
+        userInput.value = '';
+
+        // Show typing indicator
+        showTypingIndicator();
+
+        // Process message after a short delay
+        setTimeout(() => {
+            processUserMessage(message);
+        }, 1000);
+    }
+
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+        messageDiv.textContent = text;
+        chatbotMessages.appendChild(messageDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.classList.add('typing-indicator');
+        typingDiv.innerHTML = `
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        `;
+        chatbotMessages.appendChild(typingDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+        return typingDiv;
+    }
+
+    function removeTypingIndicator(typingDiv) {
+        if (typingDiv && typingDiv.parentNode) {
+            typingDiv.parentNode.removeChild(typingDiv);
+        }
+    }
+
+    function processUserMessage(message) {
+        const typingDiv = document.querySelector('.typing-indicator');
+        
+        // Check if message is a greeting
+        if (isGreeting(message)) {
+            setTimeout(() => {
+                removeTypingIndicator(typingDiv);
+                addMessage("Hello! I'm here to help with health information. You can ask about specific diseases or their risk percentages.", 'bot');
+            }, 1000);
+            return;
+        }
+
+        // Check if message is a thank you
+        if (isThankYou(message)) {
+            setTimeout(() => {
+                removeTypingIndicator(typingDiv);
+                addMessage("You're welcome! Let me know if you have any other health-related questions.", 'bot');
+            }, 1000);
+            return;
+        }
+
+        // Check if asking for help
+        if (message.toLowerCase().includes('help') || message.toLowerCase().includes('what can you do')) {
+            setTimeout(() => {
+                removeTypingIndicator(typingDiv);
+                addMessage("I can provide information about various diseases, their symptoms, risk levels, and risk percentages (1-100%). Try asking about a specific condition like 'What is diabetes?' or 'Tell me about heart attack risk'", 'bot');
+            }, 1000);
+            return;
+        }
+
+        // Check for percentage queries
+        if (message.toLowerCase().includes('percentage') || message.toLowerCase().includes('%') || message.toLowerCase().includes('risk level')) {
+            setTimeout(() => {
+                removeTypingIndicator(typingDiv);
+                const response = document.createElement('div');
+                response.innerHTML = `
+                    <strong>Health Risk Percentage Scale (1-100%):</strong>
+                    <div class="risk-meter"></div>
+                    <div class="risk-description">
+                        <strong>1-10%:</strong> ${percentageDescriptions["1-10"]}<br>
+                        <strong>11-29%:</strong> ${percentageDescriptions["11-29"]}<br>
+                        <strong>30-49%:</strong> ${percentageDescriptions["30-49"]}<br>
+                        <strong>50-69%:</strong> ${percentageDescriptions["50-69"]}<br>
+                        <strong>70-89%:</strong> ${percentageDescriptions["70-89"]}<br>
+                        <strong>90-100%:</strong> ${percentageDescriptions["90-100"]}
+                    </div>
+                `;
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'bot-message');
+                messageDiv.appendChild(response);
+                chatbotMessages.appendChild(messageDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }, 1500);
+            return;
+        }
+
+        // Check for disease queries
+        let foundDisease = null;
+        const lowerMessage = message.toLowerCase();
+        
+        for (const disease in diseases) {
+            if (lowerMessage.includes(disease)) {
+                foundDisease = disease;
+                break;
+            }
+        }
+
+        if (foundDisease) {
+            setTimeout(() => {
+                removeTypingIndicator(typingDiv);
+                const diseaseInfo = diseases[foundDisease];
+                const riskTagClass = `${diseaseInfo.risk}-risk-tag`;
+                const riskTagText = diseaseInfo.risk === 'high' ? 'High Risk' : 
+                                  diseaseInfo.risk === 'medium' ? 'Medium Risk' : 
+                                  diseaseInfo.risk === 'low' ? 'Low Risk' : 'Deceased';
+                
+                const response = document.createElement('div');
+                response.innerHTML = `
+                    <strong>${capitalizeFirstLetter(foundDisease)}</strong>
+                    <span class="risk-tag ${riskTagClass}">${riskTagText} (${diseaseInfo.percentage}%)</span>
+                    <div class="disease-info">${diseaseInfo.info}</div>
+                    <div class="risk-explanation">
+                        <strong>Risk Explanation:</strong> ${riskExplanations[diseaseInfo.risk]}
+                    </div>
+                `;
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'bot-message');
+                messageDiv.appendChild(response);
+                chatbotMessages.appendChild(messageDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }, 1500);
+        } else {
+            setTimeout(() => {
+                removeTypingIndicator(typingDiv);
+                addMessage("I'm not sure I understand. Could you be more specific about the disease or health concern you're asking about? Here are some suggestions:", 'bot');
+                
+                // Add some random disease suggestions
+                const diseaseKeys = Object.keys(diseases);
+                const randomDiseases = [];
+                while (randomDiseases.length < 3) {
+                    const randomIndex = Math.floor(Math.random() * diseaseKeys.length);
+                    if (!randomDiseases.includes(diseaseKeys[randomIndex])) {
+                        randomDiseases.push(diseaseKeys[randomIndex]);
+                    }
+                }
+                
+                const suggestionsDiv = document.createElement('div');
+                suggestionsDiv.classList.add('suggestions');
+                randomDiseases.forEach(disease => {
+                    const button = document.createElement('button');
+                    button.classList.add('suggestion-chip');
+                    button.textContent = capitalizeFirstLetter(disease);
+                    suggestionsDiv.appendChild(button);
+                });
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'bot-message');
+                messageDiv.appendChild(suggestionsDiv);
+                chatbotMessages.appendChild(messageDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }, 1500);
+        }
+    }
+
+    function isGreeting(message) {
+        const greetings = ['hello', 'hi', 'hey', 'greetings', 'good morning', 'good afternoon', 'good evening'];
+        return greetings.some(greet => message.toLowerCase().includes(greet));
+    }
+
+    function isThankYou(message) {
+        const thanks = ['thank', 'thanks', 'appreciate'];
+        return thanks.some(thank => message.toLowerCase().includes(thank));
+    }
+
+    function capitalizeFirstLetter(string) {
+        return string.split(' ').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
+    }
+</script>
+
+</html>

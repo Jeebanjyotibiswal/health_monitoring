@@ -168,7 +168,8 @@ This link will expire in 1 hour."""
 @app.route('/reset-password/<token>', methods=['GET'])
 def reset_password_form(token):
     try:
-        email = serializer.loads(token, salt='reset-salt', max_age=3600)
+        # Just validate the token, don't need the email here
+        serializer.loads(token, salt='reset-salt', max_age=3600)
         return render_template('reset_form.html', token=token)
     except SignatureExpired:
         return render_template('error.html', message="This password reset link has expired.")
@@ -196,6 +197,10 @@ def reset_password():
         cursor.execute("UPDATE users SET password=? WHERE email=?", (new_password, email))
         conn.commit()
         return jsonify({"status": "success", "message": "Password updated successfully."})
+    except SignatureExpired:
+        return jsonify({"status": "error", "message": "This password reset link has expired."})
+    except BadSignature:
+        return jsonify({"status": "error", "message": "Invalid reset link."})
     except Exception as e:
         return jsonify({"status": "error", "message": f"Error resetting password: {str(e)}"})
     finally:

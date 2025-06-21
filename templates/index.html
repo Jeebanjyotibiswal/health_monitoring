@@ -2012,6 +2012,11 @@ body.night-mode {
     const switchToSignup = document.getElementById('switch-to-signup');
     const switchToLogin = document.getElementById('switch-to-login');
     const loginPromptBtn = document.getElementById('login-prompt-btn');
+    const forgotPasswordBtn = document.getElementById('forgot-password');
+    const resetPasswordModal = document.getElementById('reset-password-modal');
+    const closeReset = document.getElementById('close-reset');
+    const resetToLogin = document.getElementById('reset-to-login');
+    const resetForm = document.getElementById('reset-form');
 
     // Open Login Modal
     if (loginBtn) {
@@ -2065,10 +2070,79 @@ body.night-mode {
         });
     }
 
+    // Forgot Password Handling
+    if (forgotPasswordBtn) {
+        forgotPasswordBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginModal.classList.remove('active');
+            resetPasswordModal.classList.add('active');
+        });
+    }
+
+    if (closeReset) {
+        closeReset.addEventListener('click', function() {
+            resetPasswordModal.classList.remove('active');
+        });
+    }
+
+    if (resetToLogin) {
+        resetToLogin.addEventListener('click', function() {
+            resetPasswordModal.classList.remove('active');
+            loginModal.classList.add('active');
+        });
+    }
+
+    // Password Reset Form Submission
+    if (resetForm) {
+        resetForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('reset-email').value.trim();
+            const messageDiv = document.getElementById('reset-message');
+
+            if (!email || !validateEmail(email)) {
+                messageDiv.textContent = 'Please enter a valid email address';
+                messageDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/send-reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(email)}`
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    messageDiv.textContent = data.message;
+                    messageDiv.style.color = 'green';
+                    messageDiv.style.display = 'block';
+                    setTimeout(() => {
+                        resetPasswordModal.classList.remove('active');
+                        loginModal.classList.add('active');
+                        messageDiv.style.display = 'none';
+                    }, 3000);
+                } else {
+                    messageDiv.textContent = data.message;
+                    messageDiv.style.color = 'red';
+                    messageDiv.style.display = 'block';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'Error sending reset link. Please try again.';
+                messageDiv.style.color = 'red';
+                messageDiv.style.display = 'block';
+                console.error('Error:', error);
+            }
+        });
+    }
+
     // Close Modals When Clicking Outside
     window.addEventListener('click', function(e) {
         if (e.target === loginModal) loginModal.classList.remove('active');
         if (e.target === signupModal) signupModal.classList.remove('active');
+        if (e.target === resetPasswordModal) resetPasswordModal.classList.remove('active');
     });
 
     // Password Toggle Functionality
@@ -2196,66 +2270,6 @@ body.night-mode {
                 }
             } catch (error) {
                 alert('Error during signup: ' + error.message);
-            }
-        });
-    }
-
-    // Forgot Password Handling
-    const forgotPasswordBtn = document.getElementById('forgot-password');
-    const resetPasswordModal = document.getElementById('reset-password-modal');
-    const closeReset = document.getElementById('close-reset');
-    const resetToLogin = document.getElementById('reset-to-login');
-    const resetForm = document.getElementById('reset-form');
-
-    if (forgotPasswordBtn) {
-        forgotPasswordBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            loginModal.classList.remove('active');
-            resetPasswordModal.classList.add('active');
-        });
-    }
-
-    if (closeReset) {
-        closeReset.addEventListener('click', function() {
-            resetPasswordModal.classList.remove('active');
-        });
-    }
-
-    if (resetToLogin) {
-        resetToLogin.addEventListener('click', function() {
-            resetPasswordModal.classList.remove('active');
-            loginModal.classList.add('active');
-        });
-    }
-
-    if (resetForm) {
-        resetForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('reset-email').value.trim();
-
-            if (!email || !validateEmail(email)) {
-                alert('Please enter a valid email address.');
-                return;
-            }
-
-            try {
-                const response = await fetch('/send-reset', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `email=${encodeURIComponent(email)}`
-                });
-
-                const data = await response.json();
-                if (data.status === 'success') {
-                    alert('Password reset link has been sent to your email.');
-                    resetPasswordModal.classList.remove('active');
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            } catch (error) {
-                alert('Error sending reset link: ' + error.message);
             }
         });
     }
@@ -2574,5 +2588,4 @@ body.night-mode {
         ).join(' ');
     }
 </script>
-
 </html>

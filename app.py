@@ -169,7 +169,7 @@ This link will expire in 1 hour."""
 def reset_password_form(token):
     try:
         # Just validate the token, don't need the email here
-        serializer.loads(token, salt='reset-salt', max_age=3600)
+        serializer.loads(token, salt='reset-salt', max_age=315532800)
         return render_template('reset_form.html', token=token)
     except SignatureExpired:
         return render_template('error.html', message="This password reset link has expired.")

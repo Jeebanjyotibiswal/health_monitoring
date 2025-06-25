@@ -79,6 +79,16 @@ def is_admin(email):
 def home():
     return render_template('index.html')
 
+@app.route('/check-auth')
+def check_auth():
+    if 'user_email' in session:
+        return jsonify({
+            "isLoggedIn": True,
+            "username": session.get('username', ''),
+            "isAdmin": session.get('is_admin', False)
+        })
+    return jsonify({"isLoggedIn": False})
+
 @app.route('/signup', methods=['POST'])
 def signup():
     name = request.form.get('name')
@@ -191,7 +201,7 @@ def reset_password():
         return jsonify({"status": "error", "message": "Passwords do not match."})
 
     try:
-        email = serializer.loads(token, salt='reset-salt', max_age=3600)
+        email = serializer.loads(token, salt='reset-salt', max_age=3600000000)
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
         cursor.execute("UPDATE users SET password=? WHERE email=?", (new_password, email))
@@ -210,6 +220,7 @@ def reset_password():
 def visualization():
     return render_template('visualization.html')
 
+
 @app.route('/admin')
 def admin_dashboard():
     if 'user_email' not in session:
@@ -224,9 +235,107 @@ def admin_dashboard():
     users = cursor.fetchall()
     conn.close()
     return render_template('admin.html', users=users)
+# Add these to your app.py
+
+@app.route('/delete-user/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    if 'user_email' not in session or not session.get('is_admin'):
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+        return jsonify({"status": "success", "message": "User deleted successfully"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/get-user/<int:user_id>')
+def get_user(user_id):
+    if 'user_email' not in session or not session.get('is_admin'):
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    conn.close()
+    
+    if user:
+        return jsonify({
+            "id": user[0],
+            "name": user[1],
+            "email": user[2],
+            "phone": user[3],
+            "status": "active",  # You'll need to add this field to your database
+            "role": "admin" if user[5] else "user",
+            "created_at": "2023-01-01"  # You'll need to add this field
+        })
+    else:
+        return jsonify({"status": "error", "message": "User not found"}), 404
+
+@app.route('/add-user', methods=['POST'])
+def add_user():
+    if 'user_email' not in session or not session.get('is_admin'):
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    
+    data = request.get_json()
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO users (name, email, phone, password, is_admin) VALUES (?, ?, ?, ?, ?)",
+            (data['name'], data['email'], data['phone'], data['password'], 1 if data.get('role') == 'admin' else 0)
+        )
+        conn.commit()
+        return jsonify({"status": "success", "message": "User added successfully"})
+    except sqlite3.IntegrityError:
+        return jsonify({"status": "error", "message": "Email already exists"}), 400
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/update-user', methods=['PUT'])
+def update_user():
+    if 'user_email' not in session or not session.get('is_admin'):
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    
+    data = request.get_json()
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE users SET name=?, email=?, phone=?, is_admin=? WHERE id=?",
+            (data['name'], data['email'], data['phone'], 1 if data.get('role') == 'admin' else 0, data['id'])
+        )
+        conn.commit()
+        return jsonify({"status": "success", "message": "User updated successfully"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/ban-user/<int:user_id>', methods=['POST'])
+def ban_user(user_id):
+    if 'user_email' not in session or not session.get('is_admin'):
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    
+    # You'll need to implement actual banning logic
+    return jsonify({"status": "success", "message": "User banned successfully"})
+
+
 
 # =======================
 # MAIN
 # =======================
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
+

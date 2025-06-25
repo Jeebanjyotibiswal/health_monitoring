@@ -2,162 +2,1134 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard - Users</title>
+    <title>Admin Dashboard - User Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #4a6fa5;
+            --primary-dark: #3a5a8a;
+            --secondary: #166088;
+            --success: #4CAF50;
+            --danger: #f44336;
+            --warning: #ff9800;
+            --info: #2196F3;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --bg-color: #f5f7fa;
+            --text-color: #333;
+            --card-bg: white;
+            --sidebar-bg: #4a6fa5;
+            --sidebar-text: white;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --card-bg: #2d2d2d;
+            --sidebar-bg: #1e2a3a;
+            --sidebar-text: #f0f0f0;
+            --light: #3d3d3d;
+            --dark: #f0f0f0;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 1.5rem 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-header h2 i {
+            margin-right: 10px;
+            color: var(--sidebar-text);
+        }
+
+        .sidebar-menu {
+            margin-top: 1.5rem;
+        }
+
+        .menu-item {
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
             padding: 2rem;
         }
-        h1 {
-            color: #333;
-            text-align: center;
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
         }
-        .controls {
-            text-align: center;
+
+        .header h1 {
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 1rem;
         }
-        .controls input {
-            padding: 0.5rem;
-            width: 300px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
         }
-        .user-count {
-            text-align: center;
-            margin-top: 0.5rem;
-            color: #555;
+
+        .card-users .card-icon { background: rgba(74, 111, 165, 0.1); color: var(--primary); }
+        .card-active .card-icon { background: rgba(76, 175, 80, 0.1); color: var(--success); }
+        .card-pending .card-icon { background: rgba(255, 152, 0, 0.1); color: var(--warning); }
+        .card-banned .card-icon { background: rgba(244, 67, 54, 0.1); color: var(--danger); }
+
+        .card h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--dark);
         }
-        table {
-            width: 90%;
-            margin: 1rem auto;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+        .card p {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
         }
-        th, td {
-            padding: 12px 20px;
+
+        .card small {
+            display: block;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .card-users p { color: var(--primary); }
+        .card-active p { color: var(--success); }
+        .card-pending p { color: var(--warning); }
+        .card-banned p { color: var(--danger); }
+
+        /* User Table Styles */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
             border: 1px solid #ddd;
-            text-align: center;
+            border-radius: 4px;
+            width: 250px;
+            background: var(--card-bg);
+            color: var(--text-color);
         }
+
+        .search-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
         th {
-            background: #4a6fa5;
-            color: white;
+            background: var(--light);
+            color: var(--dark);
+            font-weight: 600;
         }
-        tr:nth-child(even) {
-            background: #f2f2f2;
+
+        tr:hover {
+            background: rgba(74, 111, 165, 0.05);
         }
-        .actions button {
-            padding: 5px 10px;
-            margin: 0 5px;
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active { background: rgba(76, 175, 80, 0.1); color: var(--success); }
+        .status-pending { background: rgba(255, 152, 0, 0.1); color: var(--warning); }
+        .status-banned { background: rgba(244, 67, 54, 0.1); color: var(--danger); }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
         }
-        .edit-btn {
-            background-color: #4CAF50;
+
+        .btn-sm {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
             color: white;
         }
-        .delete-btn {
-            background-color: #f44336;
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
             color: white;
         }
-        a.logout {
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 1rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .modal-header .close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
             display: block;
-            width: max-content;
-            margin: 1rem auto;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            background: #ff4444;
-            color: white;
-            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
         }
-        a.logout:hover {
-            background: #e63333;
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            background: var(--card-bg);
+            color: var(--text-color);
         }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            background: var(--light);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .admin-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .dashboard-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+        }
+        /* Add to both files' CSS */
+@media (max-width: 992px) {
+    /* Tablet optimizations */
+}
+
+@media (max-width: 768px) {
+    /* Mobile landscape optimizations */
+}
+
+@media (max-width: 576px) {
+    /* Mobile portrait optimizations */
+    .sidebar {
+        width: 100%;
+        position: static;
+    }
+    
+    .admin-container {
+        flex-direction: column;
+    }
+    
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .table-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .search-box input {
+        width: 100%;
+    }
+    
+    .actions {
+        flex-wrap: wrap;
+    }
+    
+    .btn-sm {
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 400px) {
+    /* Small mobile optimizations */
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+    
+    .feature-card, .project-card {
+        padding: 1.2rem;
+    }
+    
+    .auth-container {
+        width: 95%;
+    }
+}
+/* Add loading spinner */
+.loading-spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top: 4px solid var(--primary);
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* Add to both files */
+:focus {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: more) {
+    body {
+        --primary: #0000FF;
+        --secondary: #000080;
+        --text: #000000;
+    }
+}
     </style>
 </head>
 <body>
-    <h1>Admin Dashboard</h1>
-    <div class="controls">
-        <input type="text" id="searchInput" placeholder="Search by name, email or phone...">
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-shield-alt"></i> Admin Panel</h2>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </div>
+                <div class="menu-item" onclick="window.location.href='/visualization.html'">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>User Management</h1>
+                <div class="user-info">
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=4a6fa5&color=fff" alt="Admin">
+                    <span>Admin</span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Dashboard Cards -->
+            <div class="dashboard-cards">
+                <div class="card card-users">
+                    <div class="card-header">
+                        <h3>Total Users</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <p>{{ users|length }}</p>
+                    <small>All registered users</small>
+                </div>
+                <div class="card card-active">
+                    <div class="card-header">
+                        <h3>Active Users</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                    <p>{{ active_users }}</p>
+                    <small>Ready to use the system</small>
+                </div>
+                <div class="card card-pending">
+                    <div class="card-header">
+                        <h3>Pending Users</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                    </div>
+                    <p>{{ pending_users }}</p>
+                    <small>Waiting for approval</small>
+                </div>
+                <div class="card card-banned">
+                    <div class="card-header">
+                        <h3>Banned Users</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-user-slash"></i>
+                        </div>
+                    </div>
+                    <p>{{ banned_users }}</p>
+                    <small>Restricted from access</small>
+                </div>
+            </div>
+            
+            <!-- User Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <button class="btn btn-primary" onclick="openAddUserModal()">
+                        <i class="fas fa-plus"></i> Add New User
+                    </button>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search users...">
+                    </div>
+                </div>
+                
+                <table id="userTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user[0] }}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <img src="https://ui-avatars.com/api/?name={{ user[1] }}&background=random" class="user-avatar" alt="{{ user[1] }}">
+                                    <span>{{ user[1] }}</span>
+                                </div>
+                            </td>
+                            <td>{{ user[2] }}</td>
+                            <td>{{ user[3] }}</td>
+                            <td>
+                                <span class="status status-{{ user[4] }}">{{ user[4]|capitalize }}</span>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn btn-sm btn-info" onclick="viewUser({{ user[0] }})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" onclick="editUser({{ user[0] }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteUser({{ user[0] }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {% if user[4] != 'banned' %}
+                                    <button class="btn btn-sm btn-warning" onclick="banUser({{ user[0] }})">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <div class="user-count">
-        Total Users: <span id="userCount">{{ users|length }}</span>
+    
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New User</h3>
+                <button class="close" onclick="closeModal('addUserModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label for="addName">Full Name</label>
+                        <input type="text" id="addName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addEmail">Email</label>
+                        <input type="email" id="addEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addPhone">Phone</label>
+                        <input type="tel" id="addPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addPassword">Password</label>
+                        <input type="password" id="addPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addStatus">Status</label>
+                        <select id="addStatus">
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="banned">Banned</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="addRole">Role</label>
+                        <select id="addRole">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeModal('addUserModal')">Cancel</button>
+                <button class="btn btn-success" onclick="submitAddUser()">Save User</button>
+            </div>
+        </div>
     </div>
-    <table id="userTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user[0] }}</td>
-                <td>{{ user[1] }}</td>
-                <td>{{ user[2] }}</td>
-                <td>{{ user[3] }}</td>
-                <td class="actions">
-                    <button class="edit-btn" onclick="editUser({{ user[0] }})">Edit</button>
-                    <button class="delete-btn" onclick="deleteUser({{ user[0] }})">Delete</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <a class="logout" href="/logout">Logout</a>
+    
+    <!-- View User Modal -->
+    <div class="modal" id="viewUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>User Details</h3>
+                <button class="close" onclick="closeModal('viewUserModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="viewUserContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('viewUserModal')">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit User Modal -->
+    <div class="modal" id="editUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit User</h3>
+                <button class="close" onclick="closeModal('editUserModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="form-group">
+                        <label for="editName">Full Name</label>
+                        <input type="text" id="editName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email</label>
+                        <input type="email" id="editEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPhone">Phone</label>
+                        <input type="tel" id="editPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStatus">Status</label>
+                        <select id="editStatus">
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="banned">Banned</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRole">Role</label>
+                        <select id="editRole">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeModal('editUserModal')">Cancel</button>
+                <button class="btn btn-success" onclick="submitEditUser()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Deletion</h3>
+                <button class="close" onclick="closeModal('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this user? This action cannot be undone.</p>
+                <input type="hidden" id="deleteUserId">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeModal('deleteModal')">Cancel</button>
+                <button class="btn btn-success" onclick="confirmDelete()">Delete User</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ban User Modal -->
+    <div class="modal" id="banModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Ban User</h3>
+                <button class="close" onclick="closeModal('banModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to ban this user? They will no longer be able to access the system.</p>
+                <div class="form-group">
+                    <label for="banReason">Reason for Ban</label>
+                    <input type="text" id="banReason" placeholder="Enter reason...">
+                </div>
+                <input type="hidden" id="banUserId">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeModal('banModal')">Cancel</button>
+                <button class="btn btn-success" onclick="confirmBan()">Ban User</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const searchInput = document.getElementById('searchInput');
-        const table = document.getElementById('userTable');
-
-        searchInput.addEventListener('input', function () {
-            const filter = searchInput.value.toLowerCase();
-            const rows = table.getElementsByTagName('tr');
-            let count = 0;
-
-            for (let i = 1; i < rows.length; i++) {
-                const cells = rows[i].getElementsByTagName('td');
-                const text = Array.from(cells).map(td => td.textContent.toLowerCase()).join(' ');
-                if (text.includes(filter)) {
-                    rows[i].style.display = '';
-                    count++;
-                } else {
-                    rows[i].style.display = 'none';
-                }
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
             }
-
-            document.getElementById('userCount').textContent = count;
         });
 
-        function editUser(id) {
-            alert('Edit functionality not implemented. User ID: ' + id);
+        // Logout function
+        function logout() {
+            fetch('/logout')
+                .then(() => window.location.href = '/');
         }
 
-        function deleteUser(id) {
-            if (confirm('Are you sure you want to delete this user?')) {
-                fetch(`/delete-user/${id}`, {
-                    method: 'DELETE'
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const filter = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#userTable tbody tr');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(filter)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        
+        // Modal functions
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+        
+        function openAddUserModal() {
+            document.getElementById('addUserForm').reset();
+            openModal('addUserModal');
+        }
+        
+        // User actions
+        function viewUser(id) {
+            fetch(`/get-user/${id}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('User not found');
+                    return response.json();
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        alert('User deleted successfully');
-                        location.reload();
-                    } else {
-                        alert('Error deleting user: ' + data.message);
-                    }
+                .then(user => {
+                    document.getElementById('viewUserContent').innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 1.5rem;">
+                            <img src="https://ui-avatars.com/api/?name=${user.name}&size=100&background=random" 
+                                 style="width: 80px; height: 80px; border-radius: 50%;">
+                            <div>
+                                <h3 style="margin: 0 0 0.5rem;">${user.name}</h3>
+                                <span class="status status-${user.status}">${user.status.charAt(0).toUpperCase() + user.status.slice(1)}</span>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <p><strong>Email:</strong> ${user.email}</p>
+                                <p><strong>Phone:</strong> ${user.phone}</p>
+                            </div>
+                            <div>
+                                <p><strong>Role:</strong> ${user.role}</p>
+                                <p><strong>Joined:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        ${user.status === 'banned' ? `<div style="margin-top: 1rem; padding: 1rem; background: #ffeeee; border-radius: 4px;">
+                            <p><strong>Ban Reason:</strong> ${user.ban_reason || 'Not specified'}</p>
+                        </div>` : ''}
+                    `;
+                    openModal('viewUserModal');
                 })
                 .catch(error => {
-                    alert('Error deleting user: ' + error);
+                    alert(error.message);
+                    console.error(error);
                 });
-            }
         }
+        
+        function editUser(id) {
+            fetch(`/get-user/${id}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('User not found');
+                    return response.json();
+                })
+                .then(user => {
+                    document.getElementById('editUserId').value = user.id;
+                    document.getElementById('editName').value = user.name;
+                    document.getElementById('editEmail').value = user.email;
+                    document.getElementById('editPhone').value = user.phone;
+                    document.getElementById('editStatus').value = user.status;
+                    document.getElementById('editRole').value = user.role;
+                    openModal('editUserModal');
+                })
+                .catch(error => {
+                    alert(error.message);
+                    console.error(error);
+                });
+        }
+        
+        function deleteUser(id) {
+            document.getElementById('deleteUserId').value = id;
+            openModal('deleteModal');
+        }
+        
+        function banUser(id) {
+            document.getElementById('banUserId').value = id;
+            document.getElementById('banReason').value = '';
+            openModal('banModal');
+        }
+        
+        // Form submissions
+        function submitAddUser() {
+            const userData = {
+                name: document.getElementById('addName').value,
+                email: document.getElementById('addEmail').value,
+                phone: document.getElementById('addPhone').value,
+                password: document.getElementById('addPassword').value,
+                status: document.getElementById('addStatus').value,
+                role: document.getElementById('addRole').value
+            };
+            
+            fetch('/add-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => {
+                if (!response.ok) return response.json().then(err => { throw new Error(err.message); });
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                closeModal('addUserModal');
+                location.reload();
+            })
+            .catch(error => {
+                alert(error.message);
+                console.error(error);
+            });
+        }
+        
+        function submitEditUser() {
+            const userData = {
+                id: document.getElementById('editUserId').value,
+                name: document.getElementById('editName').value,
+                email: document.getElementById('editEmail').value,
+                phone: document.getElementById('editPhone').value,
+                status: document.getElementById('editStatus').value,
+                role: document.getElementById('editRole').value
+            };
+            
+            fetch('/update-user', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => {
+                if (!response.ok) return response.json().then(err => { throw new Error(err.message); });
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                closeModal('editUserModal');
+                location.reload();
+            })
+            .catch(error => {
+                alert(error.message);
+                console.error(error);
+            });
+        }
+        
+        function confirmDelete() {
+            const userId = document.getElementById('deleteUserId').value;
+            
+            fetch(`/delete-user/${userId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) return response.json().then(err => { throw new Error(err.message); });
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                closeModal('deleteModal');
+                location.reload();
+            })
+            .catch(error => {
+                alert(error.message);
+                console.error(error);
+            });
+        }
+        
+        function confirmBan() {
+            const userId = document.getElementById('banUserId').value;
+            const reason = document.getElementById('banReason').value;
+            
+            fetch(`/ban-user/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reason })
+            })
+            .then(response => {
+                if (!response.ok) return response.json().then(err => { throw new Error(err.message); });
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                closeModal('banModal');
+                location.reload();
+            })
+            .catch(error => {
+                alert(error.message);
+                console.error(error);
+            });
+        }
+        // Add to both files
+function showError(message, elementId) {
+    const errorElement = document.getElementById(elementId);
+    errorElement.textContent = message;
+    errorElement.style.display = 'block';
+    setTimeout(() => {
+        errorElement.style.display = 'none';
+    }, 5000);
+}
+// Check session timeout
+setInterval(() => {
+    fetch('/check-session')
+        .then(response => {
+            if (response.status === 401) {
+                alert('Your session has expired. Please log in again.');
+                window.location.href = '/';
+            }
+        });
+}, 300000); // Check every 5 minutes
+// Add to admin.html script section
+// Dynamic user count updates
+function updateUserCounts() {
+    fetch('/api/user-stats')
+        .then(response => response.json())
+        .then(data => {
+            document.querySelector('.card-users p').textContent = data.total;
+            document.querySelector('.card-active p').textContent = data.active;
+            document.querySelector('.card-pending p').textContent = data.pending;
+            document.querySelector('.card-banned p').textContent = data.banned;
+        });
+}
+
+// Auto-refresh every 30 seconds
+setInterval(updateUserCounts, 30000);
+
+// Real-time search
+document.getElementById('searchInput').addEventListener('input', function() {
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#userTable tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+});
     </script>
 </body>
 </html>
